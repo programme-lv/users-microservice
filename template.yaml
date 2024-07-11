@@ -7,7 +7,6 @@ Resources:
       BuildMethod: go1.x
     Properties:
       PackageType: Zip
-      Handler: main
       CodeUri: cmd/lambda
       Runtime: provided.al2023
       MemorySize: 128
