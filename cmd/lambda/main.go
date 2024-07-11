@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -11,7 +12,12 @@ import (
 )
 
 func main() {
-	repo, err := repository.NewDynamoDBUserRepository()
+	tableName := os.Getenv("TABLE_NAME")
+	if tableName == "" {
+		panic("TABLE_NAME environment variable is not set")
+	}
+
+	repo, err := repository.NewDynamoDBUserRepository(tableName)
 	if err != nil {
 		panic(err)
 	}

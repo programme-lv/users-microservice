@@ -21,16 +21,12 @@ type DynamoDBUserRepository struct {
 }
 
 // NewDynamoDBUserRepository creates a new DynamoDBUserRepository with a DynamoDB client
-func NewDynamoDBUserRepository() (*DynamoDBUserRepository, error) {
+func NewDynamoDBUserRepository(tableName string) (*DynamoDBUserRepository, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
 	if err != nil {
 		return nil, errors.New("unable to load SDK config, " + err.Error())
 	}
 	db := dynamodb.NewFromConfig(cfg)
-	tableName := os.Getenv("TABLE_NAME")
-	if tableName == "" {
-		return nil, errors.New("TABLE_NAME environment variable is not set")
-	}
 	return &DynamoDBUserRepository{db: db, tableName: tableName}, nil
 }
 
