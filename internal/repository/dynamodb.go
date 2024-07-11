@@ -13,17 +13,21 @@ import (
 	"github.com/programme-lv/users-microservice/internal/domain"
 )
 
-var db *dynamodb.Client
-
-func init() {
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
-	if err != nil {
-		panic("unable to load SDK config, " + err.Error())
-	}
-	db = dynamodb.NewFromConfig(cfg)
+type DynamoDBUserRepository struct {
+	db *dynamodb.Client
 }
 
-func GetUser(uuid uuid.UUID) (domain.User, error) {
+// NewDynamoDBUserRepository creates a new DynamoDBUserRepository with a DynamoDB client
+func NewDynamoDBUserRepository() (*DynamoDBUserRepository, error) {
+	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
+	if err != nil {
+		return nil, errors.New("unable to load SDK config, " + err.Error())
+	}
+	db := dynamodb.NewFromConfig(cfg)
+	return &DynamoDBUserRepository{db: db}, nil
+}
+
+func (r *DynamoDBUserRepository) GetUser(uuid uuid.UUID) (domain.User, error) {
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Users"),
 		Key: map[string]types.AttributeValue{
@@ -31,7 +35,7 @@ func GetUser(uuid uuid.UUID) (domain.User, error) {
 		},
 	}
 
-	result, err := db.GetItem(context.TODO(), input)
+	result, err := r.db.GetItem(context.TODO(), input)
 	if err != nil {
 		return domain.User{}, err
 	}
@@ -49,7 +53,7 @@ func GetUser(uuid uuid.UUID) (domain.User, error) {
 	return user, nil
 }
 
-func StoreUser(user domain.User) error {
+func (r *DynamoDBUserRepository) StoreUser(user domain.User) error {
 	item, err := attributevalue.MarshalMap(user)
 	if err != nil {
 		return err
@@ -60,11 +64,11 @@ func StoreUser(user domain.User) error {
 		Item:      item,
 	}
 
-	_, err = db.PutItem(context.TODO(), input)
+	_, err = r.db.PutItem(context.TODO(), input)
 	return err
 }
 
-func DeleteUser(uuid uuid.UUID) error {
+func (r *DynamoDBUserRepository) DeleteUser(uuid uuid.UUID) error {
 	input := &dynamodb.DeleteItemInput{
 		TableName: aws.String("Users"),
 		Key: map[string]types.AttributeValue{
@@ -72,16 +76,16 @@ func DeleteUser(uuid uuid.UUID) error {
 		},
 	}
 
-	_, err := db.DeleteItem(context.TODO(), input)
+	_, err := r.db.DeleteItem(context.TODO(), input)
 	return err
 }
 
-func ListUsers() ([]domain.User, error) {
+func (r *DynamoDBUserRepository) ListUsers() ([]domain.User, error) {
 	input := &dynamodb.ScanInput{
 		TableName: aws.String("Users"),
 	}
 
-	result, err := db.Scan(context.TODO(), input)
+	result, err := r.db.Scan(context.TODO(), input)
 	if err != nil {
 		return nil, err
 	}
