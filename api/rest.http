@@ -1,0 +1,27 @@
+### Create User
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "email": "johndoe@example.com",
+  "password": "password123"
+}
+
+### Get User
+GET http://localhost:3000/users/{{uuid}}
+
+### Update User
+PUT http://localhost:3000/users/{{uuid}}
+Content-Type: application/json
+
+{
+  "username": "johnupdated",
+  "email": "johnupdated@example.com"
+}
+
+### Delete User
+DELETE http://localhost:3000/users/{{uuid}}
+
+### List Users
+GET http://localhost:3000/users
