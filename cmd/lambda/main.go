@@ -1,6 +1,10 @@
 package main
 
 import (
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/programme-lv/users-microservice/internal/handlers"
 	"github.com/programme-lv/users-microservice/internal/repository"
 	"github.com/programme-lv/users-microservice/internal/service"
@@ -14,6 +18,23 @@ func main() {
 	userService := service.NewUserService(repo)
 	controller := handlers.NewController(userService)
 
-	// Example of how to start the lambda with a specific handler
-	// lambda.Start(controller.CreateUser)
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+
+	r.Route("/users", func(r chi.Router) {
+		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+			lambdaHandler(controller.CreateUser, w, r)
+		})
+		r.Get("/{uuid}", func(w http.ResponseWriter, r *http.Request) {
+			lambdaHandler(controller.GetUser, w, r)
+		})
+		r.Put("/{uuid}", func(w http.ResponseWriter, r *http.Request) {
+			lambdaHandler(controller.UpdateUser, w, r)
+		})
+		r.Delete("/{uuid}", func(w http.ResponseWriter, r *http.Request) {
+			lambdaHandler(controller.DeleteUser, w, r)
+		})
+	})
+
+	http.ListenAndServe(":8080", r)
 }
