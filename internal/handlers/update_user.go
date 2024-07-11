@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/programme-lv/users-microservice/internal/services"
+	"github.com/programme-lv/users-microservice/internal/service"
 )
 
 type UpdateUserRequest struct {
@@ -15,14 +15,14 @@ type UpdateUserRequest struct {
 	Email    *string `json:"email"`
 }
 
-func UpdateUser(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func (c *Controller) UpdateUser(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	var user UpdateUserRequest
 	err := json.Unmarshal([]byte(request.Body), &user)
 	if err != nil {
 		return events.APIGatewayProxyResponse{StatusCode: http.StatusBadRequest}, err
 	}
 
-	err = services.UpdateUser(services.UpdateUserInput{
+	err = c.UserService.UpdateUser(service.UpdateUserInput{
 		UUID: [16]byte{},
 	})
 	if err != nil {

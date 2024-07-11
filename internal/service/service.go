@@ -5,9 +5,9 @@ import (
 )
 
 type UserService struct {
-	repo repository.DynamoDBUserRepository
+	repo *repository.DynamoDBUserRepository
 }
 
-func NewUserService(repo repository.DynamoDBUserRepository) *UserService {
+func NewUserService(repo *repository.DynamoDBUserRepository) *UserService {
 	return &UserService{repo: repo}
 }
