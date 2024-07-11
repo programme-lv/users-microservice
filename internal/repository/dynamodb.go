@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
@@ -63,14 +64,21 @@ func StoreUser(user domain.User) error {
 	return err
 }
 
-func DeleteUser(uuid uuid.UUID) error {
-	input := &dynamodb.DeleteItemInput{
+func ListUsers() ([]domain.User, error) {
+	input := &dynamodb.ScanInput{
 		TableName: aws.String("Users"),
-		Key: map[string]types.AttributeValue{
-			"uuid": &types.AttributeValueMemberS{Value: uuid.String()},
-		},
 	}
 
-	_, err := db.DeleteItem(context.TODO(), input)
-	return err
+	result, err := db.Scan(context.TODO(), input)
+	if err != nil {
+		return nil, err
+	}
+
+	var users []domain.User
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &users)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
