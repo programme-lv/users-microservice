@@ -2,36 +2,26 @@ package handlers
 
 import (
 	"encoding/json"
+	"encoding/json"
 	"net/http"
-
-	"github.com/aws/aws-lambda-go/events"
 )
 
-func respondWithJSON(body interface{}) (events.APIGatewayProxyResponse, error) {
+func respondWithJSON(w http.ResponseWriter, body interface{}) {
 	jsonResponse, err := json.Marshal(body)
 	if err != nil {
-		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}, err
+		http.Error(w, "Failed to marshal response", http.StatusInternalServerError)
+		return
 	}
 
-	return events.APIGatewayProxyResponse{
-		StatusCode: http.StatusOK,
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
-		Body: string(jsonResponse),
-	}, nil
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
 }
 
-func respondWithBadRequest(msg string) events.APIGatewayProxyResponse {
-	return events.APIGatewayProxyResponse{
-		StatusCode: http.StatusBadRequest,
-		Body:       msg,
-	}
+func respondWithBadRequest(w http.ResponseWriter, msg string) {
+	http.Error(w, msg, http.StatusBadRequest)
 }
 
-func respondWithInternalServerError(msg string) events.APIGatewayProxyResponse {
-	return events.APIGatewayProxyResponse{
-		StatusCode: http.StatusInternalServerError,
-		Body:       msg,
-	}
+func respondWithInternalServerError(w http.ResponseWriter, msg string) {
+	http.Error(w, msg, http.StatusInternalServerError)
 }

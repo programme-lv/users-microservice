@@ -1,11 +1,10 @@
 package handlers
 
 import (
-	"context"
+	"github.com/go-chi/chi/v5"
 	"encoding/json"
 	"net/http"
 
-	"github.com/aws/aws-lambda-go/events"
 	"github.com/programme-lv/users-microservice/internal/service"
 )
 
@@ -15,19 +14,21 @@ type UpdateUserRequest struct {
 	Email    *string `json:"email"`
 }
 
-func (c *Controller) UpdateUser(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func (c *Controller) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var user UpdateUserRequest
-	err := json.Unmarshal([]byte(request.Body), &user)
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		return events.APIGatewayProxyResponse{StatusCode: http.StatusBadRequest}, err
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
 	}
 
 	err = c.UserService.UpdateUser(service.UpdateUserInput{
 		UUID: [16]byte{},
 	})
 	if err != nil {
-		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}, err
+		http.Error(w, "Failed to update user", http.StatusInternalServerError)
+		return
 	}
 
-	return events.APIGatewayProxyResponse{StatusCode: http.StatusOK}, nil
+	w.WriteHeader(http.StatusOK)
 }

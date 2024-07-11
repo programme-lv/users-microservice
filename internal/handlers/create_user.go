@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 
-	"github.com/aws/aws-lambda-go/events"
 )
 
 type CreateUserRequest struct {
@@ -14,17 +12,19 @@ type CreateUserRequest struct {
 	Password string `json:"password"`
 }
 
-func (c *Controller) CreateUser(ctx context.Context, request events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
+func (c *Controller) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user CreateUserRequest
-	err := json.Unmarshal([]byte(request.Body), &user)
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		return events.APIGatewayProxyResponse{StatusCode: http.StatusBadRequest}
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
 	}
 
 	err = c.UserService.CreateUser(user.Username, user.Email, user.Password)
 	if err != nil {
-		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}
+		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+		return
 	}
 
-	return events.APIGatewayProxyResponse{StatusCode: http.StatusCreated}
+	w.WriteHeader(http.StatusCreated)
 }

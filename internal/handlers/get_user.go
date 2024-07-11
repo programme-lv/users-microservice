@@ -1,10 +1,9 @@
 package handlers
 
 import (
-	"context"
 	"net/http"
 
-	"github.com/aws/aws-lambda-go/events"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
@@ -14,16 +13,18 @@ type GetUserResponse struct {
 	Email    string `json:"email"`
 }
 
-func (c *Controller) GetUser(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	uuidParam := request.PathParameters["uuid"]
+func (c *Controller) GetUser(w http.ResponseWriter, r *http.Request) {
+	uuidParam := chi.URLParam(r, "uuid")
 	id, err := uuid.Parse(uuidParam)
 	if err != nil {
-		return respondWithBadRequest("Invalid UUID"), nil
+		http.Error(w, "Invalid UUID", http.StatusBadRequest)
+		return
 	}
 
 	user, err := c.UserService.GetUser(id)
 	if err != nil {
-		return events.APIGatewayProxyResponse{StatusCode: http.StatusNotFound}, err
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
 	}
 
 	response := GetUserResponse{
@@ -32,5 +33,13 @@ func (c *Controller) GetUser(ctx context.Context, request events.APIGatewayProxy
 		Email:    user.Email,
 	}
 
-	return respondWithJSON(response)
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, "Failed to marshal response", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
 }

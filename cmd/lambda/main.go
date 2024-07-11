@@ -22,18 +22,10 @@ func main() {
 	r.Use(middleware.Logger)
 
 	r.Route("/users", func(r chi.Router) {
-		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-			lambdaHandler(controller.CreateUser, w, r)
-		})
-		r.Get("/{uuid}", func(w http.ResponseWriter, r *http.Request) {
-			lambdaHandler(controller.GetUser, w, r)
-		})
-		r.Put("/{uuid}", func(w http.ResponseWriter, r *http.Request) {
-			lambdaHandler(controller.UpdateUser, w, r)
-		})
-		r.Delete("/{uuid}", func(w http.ResponseWriter, r *http.Request) {
-			lambdaHandler(controller.DeleteUser, w, r)
-		})
+		r.Post("/", controller.CreateUser)
+		r.Get("/{uuid}", controller.GetUser)
+		r.Put("/{uuid}", controller.UpdateUser)
+		r.Delete("/{uuid}", controller.DeleteUser)
 	})
 
 	http.ListenAndServe(":8080", r)

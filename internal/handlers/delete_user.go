@@ -1,25 +1,26 @@
 package handlers
 
 import (
-	"context"
 	"net/http"
 
-	"github.com/aws/aws-lambda-go/events"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
-func (c *Controller) DeleteUser(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	uuidParam := request.PathParameters["uuid"]
+func (c *Controller) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	uuidParam := chi.URLParam(r, "uuid")
 
 	id, err := uuid.Parse(uuidParam)
 	if err != nil {
-		return events.APIGatewayProxyResponse{StatusCode: http.StatusBadRequest}, err
+		http.Error(w, "Invalid UUID", http.StatusBadRequest)
+		return
 	}
 
 	err = c.UserService.DeleteUser(id)
 	if err != nil {
-		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}, err
+		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+		return
 	}
 
-	return events.APIGatewayProxyResponse{StatusCode: http.StatusOK}, nil
+	w.WriteHeader(http.StatusOK)
 }
