@@ -3,8 +3,8 @@
 set -e
 
 # Variables
-S3_BUCKET="your-s3-bucket-name"
-STACK_NAME="your-stack-name"
+S3_BUCKET="proglv-microservices"
+STACK_NAME="proglv"
 REGION="your-region"
 
 # Build the project

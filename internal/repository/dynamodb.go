@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"os"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -11,10 +13,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
 	"github.com/programme-lv/users-microservice/internal/domain"
-)
-
-import (
-	"os"
 )
 
 type DynamoDBUserRepository struct {
@@ -91,7 +89,7 @@ func (r *DynamoDBUserRepository) DeleteUser(uuid uuid.UUID) error {
 
 func (r *DynamoDBUserRepository) ListUsers() ([]domain.User, error) {
 	input := &dynamodb.ScanInput{
-		TableName: aws.String(tableName),
+		TableName: aws.String(r.tableName),
 	}
 
 	result, err := r.db.Scan(context.TODO(), input)

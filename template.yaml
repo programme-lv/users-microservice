@@ -5,18 +5,10 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: main
-      Runtime: go1.x
+      Runtime: provided.al2023
       CodeUri: .
       MemorySize: 128
       Timeout: 30
       Environment:
         Variables:
           TABLE_NAME: "ProglvUsers"
-      Environment:
-        Variables:
-          TABLE_NAME: "ProglvUsers"
-        Api:
-          Type: Api
-          Properties:
-            Path: /users
-            Method: any
