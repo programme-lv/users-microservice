@@ -1,5 +1,7 @@
+@host=0f6de9e9w5.execute-api.eu-central-1.amazonaws.com
+
 ### Create User
-POST http://localhost:3000/users
+POST https://{{host}}/users/
 Content-Type: application/json
 
 {
@@ -9,10 +11,10 @@ Content-Type: application/json
 }
 
 ### Get User
-GET http://localhost:3000/users/{{uuid}}
+GET http://localhost:3000/users/{uuid}
 
 ### Update User
-PUT http://localhost:3000/users/{{uuid}}
+PUT http://localhost:3000/users/{uuid}
 Content-Type: application/json
 
 {
@@ -21,7 +23,7 @@ Content-Type: application/json
 }
 
 ### Delete User
-DELETE http://localhost:3000/users/{{uuid}}
+DELETE http://localhost:3000/users/{uuid}
 
 ### List Users
-GET http://localhost:3000/users
+GET https://{{host}}/users/

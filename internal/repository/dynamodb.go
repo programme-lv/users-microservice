@@ -18,6 +18,53 @@ type DynamoDBUserRepository struct {
 	tableName string
 }
 
+func mapDomainUserToDynamoDBUser(user domain.User) map[string]interface{} {
+	return map[string]interface{}{
+		"uuid":       user.UUID.String(),
+		"username":   user.Username,
+		"email":      user.Email,
+		"bcrypt_pwd": string(user.BcryptPwd),
+	}
+}
+
+func mapDynamoDBUserToDomainUser(dict map[string]interface{}) (domain.User, error) {
+	_, uuidFound := dict["uuid"]
+	_, usernameFound := dict["username"]
+	_, emailFound := dict["email"]
+	_, bcryptPwdFound := dict["bcrypt_pwd"]
+
+	if !uuidFound || !usernameFound || !emailFound || !bcryptPwdFound {
+		return domain.User{}, errors.New("missing fields")
+	}
+
+	uuid, err := uuid.Parse(dict["uuid"].(string))
+	if err != nil {
+		return domain.User{}, errors.New("error parsing UUID")
+	}
+
+	username, ok := dict["username"].(string)
+	if !ok {
+		return domain.User{}, errors.New("invalid username")
+	}
+
+	email, ok := dict["email"].(string)
+	if !ok {
+		return domain.User{}, errors.New("invalid email")
+	}
+
+	bcryptPwd, ok := dict["bcrypt_pwd"].(string)
+	if !ok {
+		return domain.User{}, errors.New("invalid bcrypt password")
+	}
+
+	return domain.User{
+		UUID:      uuid,
+		Username:  username,
+		Email:     email,
+		BcryptPwd: []byte(bcryptPwd),
+	}, nil
+}
+
 // NewDynamoDBUserRepository creates a new DynamoDBUserRepository with a DynamoDB client
 func NewDynamoDBUserRepository(tableName string) (*DynamoDBUserRepository, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
@@ -28,11 +75,11 @@ func NewDynamoDBUserRepository(tableName string) (*DynamoDBUserRepository, error
 	return &DynamoDBUserRepository{db: db, tableName: tableName}, nil
 }
 
-func (r *DynamoDBUserRepository) GetUser(uuid uuid.UUID) (domain.User, error) {
+func (r *DynamoDBUserRepository) GetUser(id uuid.UUID) (domain.User, error) {
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String(r.tableName),
 		Key: map[string]types.AttributeValue{
-			"uuid": &types.AttributeValueMemberS{Value: uuid.String()},
+			"uuid": &types.AttributeValueMemberS{Value: id.String()},
 		},
 	}
 
@@ -45,8 +92,14 @@ func (r *DynamoDBUserRepository) GetUser(uuid uuid.UUID) (domain.User, error) {
 		return domain.User{}, errors.New("user not found")
 	}
 
-	var user domain.User
-	err = attributevalue.UnmarshalMap(result.Item, &user)
+	dict := map[string]interface{}{}
+
+	err = attributevalue.UnmarshalMap(result.Item, &dict)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	user, err := mapDynamoDBUserToDomainUser(dict)
 	if err != nil {
 		return domain.User{}, err
 	}
@@ -55,7 +108,9 @@ func (r *DynamoDBUserRepository) GetUser(uuid uuid.UUID) (domain.User, error) {
 }
 
 func (r *DynamoDBUserRepository) StoreUser(user domain.User) error {
-	item, err := attributevalue.MarshalMap(user)
+	record := mapDomainUserToDynamoDBUser(user)
+
+	item, err := attributevalue.MarshalMap(record)
 	if err != nil {
 		return err
 	}
