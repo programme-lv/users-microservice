@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -21,7 +22,8 @@ func (c *Controller) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = c.UserService.CreateUser(user.Username, user.Email, user.Password)
 	if err != nil {
-		respondWithInternalServerError(w, "failed to create user")
+		msg := fmt.Errorf("failed to create user: %w", err).Error()
+		respondWithInternalServerError(w, msg)
 		return
 	}
 

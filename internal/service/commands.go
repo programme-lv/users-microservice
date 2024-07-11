@@ -1,14 +1,19 @@
 package service
 
 import (
+	"errors"
+	"log/slog"
+
 	"github.com/google/uuid"
 	"github.com/programme-lv/users-microservice/internal/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *UserService) CreateUser(username, email, password string) error {
+	slog.Info("Creating user", "username", username, "email", email)
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
+		slog.Error("Failed to hash password", "error", err)
 		return err
 	}
 
@@ -19,7 +24,17 @@ func (s *UserService) CreateUser(username, email, password string) error {
 		BcryptPwd: hashedPassword,
 	}
 
-	return s.repo.StoreUser(user)
+	ok, msg := user.Validate()
+	if !ok {
+		return errors.New(msg)
+	}
+
+	err = s.repo.StoreUser(user)
+	if err != nil {
+		slog.Error("Failed to store user", "error", err)
+		return err
+	}
+	return err
 }
 
 type UpdateUserInput struct {
@@ -40,6 +55,11 @@ func (s *UserService) UpdateUser(input UpdateUserInput) error {
 
 	if input.Email != nil {
 		user.Email = *input.Email
+	}
+
+	ok, msg := user.Validate()
+	if !ok {
+		return errors.New(msg)
 	}
 
 	return s.repo.StoreUser(user)

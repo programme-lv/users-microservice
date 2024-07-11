@@ -1,14 +1,18 @@
 package main
 
 import (
-	"net/http"
+	"context"
 	"os"
 
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/programme-lv/users-microservice/internal/handlers"
 	"github.com/programme-lv/users-microservice/internal/repository"
 	"github.com/programme-lv/users-microservice/internal/service"
+
+	awschi "github.com/awslabs/aws-lambda-go-api-proxy/chi"
 )
 
 func main() {
@@ -34,5 +38,11 @@ func main() {
 		r.Delete("/{uuid}", controller.DeleteUser)
 	})
 
-	http.ListenAndServe(":8080", r)
+	chiLambda := awschi.NewV2(r)
+
+	handler := func(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+		return chiLambda.ProxyWithContextV2(ctx, req)
+	}
+
+	lambda.Start(handler)
 }

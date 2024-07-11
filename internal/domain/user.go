@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"errors"
 	"net/mail"
 
 	"github.com/google/uuid"
@@ -24,28 +23,36 @@ func NewUser(uuid uuid.UUID, username string, email string, bcryptPwd []byte) (*
 	return user, nil
 }
 
-func (u *User) Validate() error {
+func (u *User) Validate() (bool, string) {
+	if u.Username == "" {
+		return false, "username is required"
+	}
+
+	if u.Email == "" {
+		return false, "email is required"
+	}
+
 	if len(u.Email) > 64 {
-		return errors.New("email too long")
+		return false, "email too long"
 	}
 
 	if len(u.Email) < 3 {
-		return errors.New("email too short")
+		return false, "email too short"
 	}
 
 	if len(u.Username) > 24 {
-		return errors.New("username too long")
+		return false, "username too long"
 	}
 
 	if len(u.Username) < 3 {
-		return errors.New("username too short")
+		return false, "username too short"
 	}
 
 	if !validEmail(u.Email) {
-		return errors.New("invalid email")
+		return false, "invalid email"
 	}
 
-	return nil
+	return true, ""
 }
 
 func validEmail(email string) bool {
