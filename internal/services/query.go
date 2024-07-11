@@ -9,3 +9,6 @@ import (
 func GetUser(uuid uuid.UUID) (domain.User, error) {
 	return repository.GetUser(uuid)
 }
+func ListUsers() ([]domain.User, error) {
+	return repository.ListUsers()
+}

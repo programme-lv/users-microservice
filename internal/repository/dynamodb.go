@@ -64,6 +64,18 @@ func StoreUser(user domain.User) error {
 	return err
 }
 
+func DeleteUser(uuid uuid.UUID) error {
+	input := &dynamodb.DeleteItemInput{
+		TableName: aws.String("Users"),
+		Key: map[string]types.AttributeValue{
+			"uuid": &types.AttributeValueMemberS{Value: uuid.String()},
+		},
+	}
+
+	_, err := db.DeleteItem(context.TODO(), input)
+	return err
+}
+
 func ListUsers() ([]domain.User, error) {
 	input := &dynamodb.ScanInput{
 		TableName: aws.String("Users"),
