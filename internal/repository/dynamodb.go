@@ -141,10 +141,19 @@ func (r *DynamoDBUserRepository) ListUsers() ([]domain.User, error) {
 		return nil, err
 	}
 
-	var users []domain.User
-	err = attributevalue.UnmarshalListOfMaps(result.Items, &users)
+	var dicts []map[string]interface{}
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &dicts)
 	if err != nil {
 		return nil, err
+	}
+
+	var users []domain.User
+	for _, dict := range dicts {
+		user, err := mapDynamoDBUserToDomainUser(dict)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
 	}
 
 	return users, nil
