@@ -13,6 +13,8 @@ import (
 	"github.com/programme-lv/users-microservice/internal/domain"
 )
 
+const tableName = "ProglvUsers"
+
 type DynamoDBUserRepository struct {
 	db *dynamodb.Client
 }
@@ -29,7 +31,7 @@ func NewDynamoDBUserRepository() (*DynamoDBUserRepository, error) {
 
 func (r *DynamoDBUserRepository) GetUser(uuid uuid.UUID) (domain.User, error) {
 	input := &dynamodb.GetItemInput{
-		TableName: aws.String("Users"),
+		TableName: aws.String(tableName),
 		Key: map[string]types.AttributeValue{
 			"uuid": &types.AttributeValueMemberS{Value: uuid.String()},
 		},
@@ -60,7 +62,7 @@ func (r *DynamoDBUserRepository) StoreUser(user domain.User) error {
 	}
 
 	input := &dynamodb.PutItemInput{
-		TableName: aws.String("Users"),
+		TableName: aws.String(tableName),
 		Item:      item,
 	}
 
@@ -70,7 +72,7 @@ func (r *DynamoDBUserRepository) StoreUser(user domain.User) error {
 
 func (r *DynamoDBUserRepository) DeleteUser(uuid uuid.UUID) error {
 	input := &dynamodb.DeleteItemInput{
-		TableName: aws.String("Users"),
+		TableName: aws.String(tableName),
 		Key: map[string]types.AttributeValue{
 			"uuid": &types.AttributeValueMemberS{Value: uuid.String()},
 		},
@@ -82,7 +84,7 @@ func (r *DynamoDBUserRepository) DeleteUser(uuid uuid.UUID) error {
 
 func (r *DynamoDBUserRepository) ListUsers() ([]domain.User, error) {
 	input := &dynamodb.ScanInput{
-		TableName: aws.String("Users"),
+		TableName: aws.String(tableName),
 	}
 
 	result, err := r.db.Scan(context.TODO(), input)
