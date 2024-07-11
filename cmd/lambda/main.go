@@ -32,6 +32,7 @@ func main() {
 	r.Use(middleware.Logger)
 
 	r.Route("/users", func(r chi.Router) {
+		r.Get("/", controller.ListUsers)
 		r.Post("/", controller.CreateUser)
 		r.Get("/{uuid}", controller.GetUser)
 		r.Put("/{uuid}", controller.UpdateUser)
