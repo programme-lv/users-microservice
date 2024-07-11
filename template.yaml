@@ -12,7 +12,9 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: "ProglvUsers"
-      Events:
+      Environment:
+        Variables:
+          TABLE_NAME: "ProglvUsers"
         Api:
           Type: Api
           Properties:

@@ -13,10 +13,13 @@ import (
 	"github.com/programme-lv/users-microservice/internal/domain"
 )
 
-const tableName = "ProglvUsers"
+import (
+	"os"
+)
 
 type DynamoDBUserRepository struct {
-	db *dynamodb.Client
+	db        *dynamodb.Client
+	tableName string
 }
 
 // NewDynamoDBUserRepository creates a new DynamoDBUserRepository with a DynamoDB client
@@ -26,12 +29,16 @@ func NewDynamoDBUserRepository() (*DynamoDBUserRepository, error) {
 		return nil, errors.New("unable to load SDK config, " + err.Error())
 	}
 	db := dynamodb.NewFromConfig(cfg)
-	return &DynamoDBUserRepository{db: db}, nil
+	tableName := os.Getenv("TABLE_NAME")
+	if tableName == "" {
+		return nil, errors.New("TABLE_NAME environment variable is not set")
+	}
+	return &DynamoDBUserRepository{db: db, tableName: tableName}, nil
 }
 
 func (r *DynamoDBUserRepository) GetUser(uuid uuid.UUID) (domain.User, error) {
 	input := &dynamodb.GetItemInput{
-		TableName: aws.String(tableName),
+		TableName: aws.String(r.tableName),
 		Key: map[string]types.AttributeValue{
 			"uuid": &types.AttributeValueMemberS{Value: uuid.String()},
 		},
@@ -62,7 +69,7 @@ func (r *DynamoDBUserRepository) StoreUser(user domain.User) error {
 	}
 
 	input := &dynamodb.PutItemInput{
-		TableName: aws.String(tableName),
+		TableName: aws.String(r.tableName),
 		Item:      item,
 	}
 
@@ -72,7 +79,7 @@ func (r *DynamoDBUserRepository) StoreUser(user domain.User) error {
 
 func (r *DynamoDBUserRepository) DeleteUser(uuid uuid.UUID) error {
 	input := &dynamodb.DeleteItemInput{
-		TableName: aws.String(tableName),
+		TableName: aws.String(r.tableName),
 		Key: map[string]types.AttributeValue{
 			"uuid": &types.AttributeValueMemberS{Value: uuid.String()},
 		},
