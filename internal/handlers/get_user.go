@@ -5,19 +5,33 @@ import (
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/google/uuid"
 	"github.com/programme-lv/users-microservice/internal/services"
 )
 
+type GetUserResponse struct {
+	UUID     string `json:"uuid"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
 func GetUser(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	id := request.PathParameters["id"]
+	uuidParam := request.PathParameters["uuid"]
+	id, err := uuid.Parse(uuidParam)
+	if err != nil {
+		return respondWithBadRequest("Invalid UUID"), nil
+	}
 
 	user, err := services.GetUser(id)
 	if err != nil {
 		return events.APIGatewayProxyResponse{StatusCode: http.StatusNotFound}, err
 	}
 
-	return events.APIGatewayProxyResponse{
-		StatusCode: http.StatusOK,
-		Body:       user,
-	}, nil
+	response := GetUserResponse{
+		UUID:     user.UUID.String(),
+		Username: user.Username,
+		Email:    user.Email,
+	}
+
+	return respondWithJSON(response)
 }
