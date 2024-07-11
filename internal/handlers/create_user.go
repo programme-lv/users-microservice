@@ -6,7 +6,8 @@ import (
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/programme-lv/users-microservice/internal/services"
+	"github.com/programme-lv/users-microservice/internal/repository"
+	"github.com/programme-lv/users-microservice/internal/service"
 )
 
 type CreateUserRequest struct {
@@ -22,7 +23,7 @@ func CreateUser(ctx context.Context, request events.APIGatewayProxyRequest) even
 		return events.APIGatewayProxyResponse{StatusCode: http.StatusBadRequest}
 	}
 
-	userService := services.NewUserService(repository.NewDynamoDBUserRepository())
+	userService := service.NewUserService(repository.NewDynamoDBUserRepository())
 	err = userService.CreateUser(user.Username, user.Email, user.Password)
 	if err != nil {
 		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}

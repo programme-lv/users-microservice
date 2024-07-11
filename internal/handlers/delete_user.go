@@ -6,7 +6,8 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/google/uuid"
-	"github.com/programme-lv/users-microservice/internal/services"
+	"github.com/programme-lv/users-microservice/internal/repository"
+	"github.com/programme-lv/users-microservice/internal/service"
 )
 
 func DeleteUser(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -17,7 +18,7 @@ func DeleteUser(ctx context.Context, request events.APIGatewayProxyRequest) (eve
 		return events.APIGatewayProxyResponse{StatusCode: http.StatusBadRequest}, err
 	}
 
-	userService := services.NewUserService(repository.NewDynamoDBUserRepository())
+	userService := service.NewUserService(repository.NewDynamoDBUserRepository())
 	err = userService.DeleteUser(id)
 	if err != nil {
 		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}, err

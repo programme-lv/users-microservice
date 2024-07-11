@@ -6,7 +6,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/google/uuid"
-	"github.com/programme-lv/users-microservice/internal/services"
+	"github.com/programme-lv/users-microservice/internal/service"
 )
 
 type GetUserResponse struct {
@@ -22,7 +22,7 @@ func GetUser(ctx context.Context, request events.APIGatewayProxyRequest) (events
 		return respondWithBadRequest("Invalid UUID"), nil
 	}
 
-	user, err := services.GetUser(id)
+	user, err := service.GetUser(id)
 	if err != nil {
 		return events.APIGatewayProxyResponse{StatusCode: http.StatusNotFound}, err
 	}
