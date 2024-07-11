@@ -41,6 +41,15 @@ func NewUser(uuid uuid.UUID, username, email, password string) (User, error) {
 	return user, nil
 }
 
+func RecoverUser(uuid uuid.UUID, username, email, bcryptPwd string) User {
+	return User{
+		id:        uuid,
+		username:  username,
+		email:     email,
+		bcryptPwd: bcryptPwd,
+	}
+}
+
 func (u *User) SetUUID(uuid uuid.UUID) {
 	u.id = uuid
 }

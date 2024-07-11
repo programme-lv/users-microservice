@@ -57,7 +57,7 @@ func mapDynamoDBUserToDomainUser(dict map[string]interface{}) (domain.User, erro
 		return domain.User{}, errors.New("invalid bcrypt password")
 	}
 
-	return domain.NewUser(uuid, username, email, bcryptPwd)
+	return domain.RecoverUser(uuid, username, email, bcryptPwd), nil
 }
 
 // NewDynamoDBUserRepository creates a new DynamoDBUserRepository with a DynamoDB client

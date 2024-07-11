@@ -1,5 +1,5 @@
 @host=0f6de9e9w5.execute-api.eu-central-1.amazonaws.com
-
+@uuid=fc8c8df1-4ff8-4226-85e9-7b56b97bfa6f
 ### Create User
 POST https://{{host}}/users/
 Content-Type: application/json
@@ -11,7 +11,7 @@ Content-Type: application/json
 }
 
 ### Get User
-GET http://localhost:3000/users/{uuid}
+GET https://{{host}}/users/{{uuid}}
 
 ### Update User
 PUT http://localhost:3000/users/{uuid}
