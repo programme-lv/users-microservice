@@ -1,0 +1,20 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Resources:
+  UserServiceFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: main
+      Runtime: go1.x
+      CodeUri: .
+      MemorySize: 128
+      Timeout: 30
+      Environment:
+        Variables:
+          TABLE_NAME: "ProglvUsers"
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: any
