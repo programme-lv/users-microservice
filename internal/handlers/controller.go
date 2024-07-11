@@ -11,4 +11,3 @@ type Controller struct {
 func NewController(userService *service.UserService) *Controller {
 	return &Controller{UserService: userService}
 }
-	"github.com/programme-lv/users-microservice/internal/handlers"
