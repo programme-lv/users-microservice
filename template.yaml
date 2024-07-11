@@ -3,12 +3,12 @@ Transform: 'AWS::Serverless-2016-10-31'
 Resources:
   UserServiceFunction:
     Type: 'AWS::Serverless::Function'
+    Metadata:
+      BuildMethod: go1.x
     Properties:
+      PackageType: Zip
       Handler: main
+      CodeUri: cmd/lambda
       Runtime: provided.al2023
-      CodeUri: .
       MemorySize: 128
       Timeout: 30
-      Environment:
-        Variables:
-          TABLE_NAME: "ProglvUsers"
