@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/programme-lv/users-microservice/internal/handlers"
+	"github.com/programme-lv/users-microservice/internal/handlers/responses"
 	"github.com/programme-lv/users-microservice/internal/repository"
 	"github.com/programme-lv/users-microservice/internal/service"
 )

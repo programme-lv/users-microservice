@@ -17,7 +17,7 @@ func (c *Controller) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var user UpdateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		respondWithBadRequest(w, "Invalid request payload")
 		return
 	}
 
@@ -25,7 +25,7 @@ func (c *Controller) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		UUID: [16]byte{},
 	})
 	if err != nil {
-		http.Error(w, "Failed to update user", http.StatusInternalServerError)
+		respondWithInternalServerError(w, "Failed to update user")
 		return
 	}
 

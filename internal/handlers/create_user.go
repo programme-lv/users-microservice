@@ -16,13 +16,13 @@ func (c *Controller) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		respondWithBadRequest(w, "Invalid request payload")
 		return
 	}
 
 	err = c.UserService.CreateUser(user.Username, user.Email, user.Password)
 	if err != nil {
-		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+		respondWithInternalServerError(w, "Failed to create user")
 		return
 	}
 

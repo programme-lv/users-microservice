@@ -12,13 +12,13 @@ func (c *Controller) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	id, err := uuid.Parse(uuidParam)
 	if err != nil {
-		http.Error(w, "Invalid UUID", http.StatusBadRequest)
+		respondWithBadRequest(w, "Invalid UUID")
 		return
 	}
 
 	err = c.UserService.DeleteUser(id)
 	if err != nil {
-		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+		respondWithInternalServerError(w, "Failed to delete user")
 		return
 	}
 
