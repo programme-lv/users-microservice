@@ -28,10 +28,10 @@ func (c *Controller) GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := GetUserResponse{
-		UUID:     user.UUID.String(),
-		Username: user.Username,
-		Email:    user.Email,
+		UUID:     user.GetUUID().String(),
+		Username: user.GetUsername(),
+		Email:    user.GetEmail(),
 	}
 
-	respondWithJSON(w, response)
+	respondWithJSON(w, response, http.StatusOK)
 }

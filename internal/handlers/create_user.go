@@ -12,6 +12,10 @@ type CreateUserRequest struct {
 	Password string `json:"password"`
 }
 
+type CreateUserResponse struct {
+	UUID string `json:"uuid"`
+}
+
 func (c *Controller) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -20,12 +24,16 @@ func (c *Controller) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = c.UserService.CreateUser(user.Username, user.Email, user.Password)
+	id, err := c.UserService.CreateUser(user.Username, user.Email, user.Password)
 	if err != nil {
 		msg := fmt.Errorf("failed to create user: %w", err).Error()
 		respondWithInternalServerError(w, msg)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	response := CreateUserResponse{
+		UUID: id.String(),
+	}
+
+	respondWithJSON(w, response, http.StatusCreated)
 }

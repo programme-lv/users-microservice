@@ -20,10 +20,10 @@ type DynamoDBUserRepository struct {
 
 func mapDomainUserToDynamoDBUser(user domain.User) map[string]interface{} {
 	return map[string]interface{}{
-		"uuid":       user.UUID.String(),
-		"username":   user.Username,
-		"email":      user.Email,
-		"bcrypt_pwd": string(user.BcryptPwd),
+		"uuid":       user.GetUUID().String(),
+		"username":   user.GetUsername(),
+		"email":      user.GetEmail(),
+		"bcrypt_pwd": user.GetBcryptPwd(),
 	}
 }
 
@@ -57,12 +57,7 @@ func mapDynamoDBUserToDomainUser(dict map[string]interface{}) (domain.User, erro
 		return domain.User{}, errors.New("invalid bcrypt password")
 	}
 
-	return domain.User{
-		UUID:      uuid,
-		Username:  username,
-		Email:     email,
-		BcryptPwd: []byte(bcryptPwd),
-	}, nil
+	return domain.NewUser(uuid, username, email, bcryptPwd)
 }
 
 // NewDynamoDBUserRepository creates a new DynamoDBUserRepository with a DynamoDB client

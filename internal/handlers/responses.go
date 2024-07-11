@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func respondWithJSON(w http.ResponseWriter, body interface{}) {
+func respondWithJSON(w http.ResponseWriter, body interface{}, statusCode int) {
 	jsonResponse, err := json.Marshal(body)
 	if err != nil {
 		http.Error(w, "Failed to marshal response", http.StatusInternalServerError)
@@ -13,7 +13,7 @@ func respondWithJSON(w http.ResponseWriter, body interface{}) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(statusCode)
 	w.Write(jsonResponse)
 }
 

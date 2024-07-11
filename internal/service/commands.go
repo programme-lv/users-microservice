@@ -1,40 +1,26 @@
 package service
 
 import (
-	"errors"
 	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/programme-lv/users-microservice/internal/domain"
-	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *UserService) CreateUser(username, email, password string) error {
+func (s *UserService) CreateUser(username, email, password string) (uuid.UUID, error) {
 	slog.Info("Creating user", "username", username, "email", email)
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	user, err := domain.NewUser(uuid.New(), username, email, password)
 	if err != nil {
-		slog.Error("Failed to hash password", "error", err)
-		return err
-	}
-
-	user := domain.User{
-		UUID:      uuid.New(),
-		Username:  username,
-		Email:     email,
-		BcryptPwd: hashedPassword,
-	}
-
-	ok, msg := user.Validate()
-	if !ok {
-		return errors.New(msg)
+		return uuid.Nil, err
 	}
 
 	err = s.repo.StoreUser(user)
 	if err != nil {
 		slog.Error("Failed to store user", "error", err)
-		return err
+		return uuid.Nil, err
 	}
-	return err
+	return user.GetUUID(), nil
 }
 
 type UpdateUserInput struct {
@@ -50,16 +36,17 @@ func (s *UserService) UpdateUser(input UpdateUserInput) error {
 	}
 
 	if input.Username != nil {
-		user.Username = *input.Username
+		err = user.SetUsername(*input.Username)
+		if err != nil {
+			return err
+		}
 	}
 
 	if input.Email != nil {
-		user.Email = *input.Email
-	}
-
-	ok, msg := user.Validate()
-	if !ok {
-		return errors.New(msg)
+		err = user.SetEmail(*input.Email)
+		if err != nil {
+			return err
+		}
 	}
 
 	return s.repo.StoreUser(user)
