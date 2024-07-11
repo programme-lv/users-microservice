@@ -22,7 +22,8 @@ func CreateUser(ctx context.Context, request events.APIGatewayProxyRequest) even
 		return events.APIGatewayProxyResponse{StatusCode: http.StatusBadRequest}
 	}
 
-	err = services.CreateUser()
+	userService := services.NewUserService(repository.NewDynamoDBUserRepository())
+	err = userService.CreateUser(user.Username, user.Email, user.Password)
 	if err != nil {
 		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}
 	}

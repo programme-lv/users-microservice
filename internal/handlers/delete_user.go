@@ -17,7 +17,8 @@ func DeleteUser(ctx context.Context, request events.APIGatewayProxyRequest) (eve
 		return events.APIGatewayProxyResponse{StatusCode: http.StatusBadRequest}, err
 	}
 
-	err := services.DeleteUser(id)
+	userService := services.NewUserService(repository.NewDynamoDBUserRepository())
+	err = userService.DeleteUser(id)
 	if err != nil {
 		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}, err
 	}
