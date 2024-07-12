@@ -11,7 +11,8 @@ func (s *UserService) CreateUser(username, email, password string) (uuid.UUID, e
 	slog.Info("Creating user", "username", username, "email", email)
 
 	user, err := domain.NewUser(uuid.New(), username, email, password,
-		s.repo.NewUsernameUniquenessChecker())
+		s.repo.NewUsernameUniquenessChecker(),
+		s.repo.NewEmailUniquenessChecker())
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -45,7 +46,7 @@ func (s *UserService) UpdateUser(input UpdateUserInput) error {
 	}
 
 	if input.Email != nil {
-		err = user.SetEmail(*input.Email)
+		err = user.SetEmail(*input.Email, s.repo.NewEmailUniquenessChecker())
 		if err != nil {
 			return err
 		}

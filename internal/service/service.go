@@ -11,6 +11,3 @@ type UserService struct {
 func NewUserService(repo *repository.DynamoDBUserRepository) *UserService {
 	return &UserService{repo: repo}
 }
-func (s *UserService) NewEmailUniquenessChecker() domain.EmailUniquenessChecker {
-	return s.repo.NewEmailUniquenessChecker()
-}

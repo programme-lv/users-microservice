@@ -31,15 +31,6 @@ func NewUser(uuid uuid.UUID, username, email, password string,
 		id: uuid,
 	}
 
-	exists, err := emailUniquenessChecker.DoesEmailExist(email)
-	if err != nil {
-		return err
-	}
-
-	if exists {
-		return errors.New("user with such email already exists")
-	}
-
 	var err error
 
 	err = user.SetUsername(username, usernameUniquenessChecker)
@@ -115,6 +106,15 @@ func (u *User) SetEmail(email string, emailUniquenessChecker EmailUniquenessChec
 
 	if !validEmail(email) {
 		return errors.New("invalid email")
+	}
+
+	exists, err := emailUniquenessChecker.DoesEmailExist(email)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return errors.New("user with such email already exists")
 	}
 
 	u.email = email
