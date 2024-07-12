@@ -10,7 +10,8 @@ import (
 func (s *UserService) CreateUser(username, email, password string) (uuid.UUID, error) {
 	slog.Info("Creating user", "username", username, "email", email)
 
-	user, err := domain.NewUser(uuid.New(), username, email, password)
+	user, err := domain.NewUser(uuid.New(), username, email, password,
+		s.repo.NewUsernameUniquenessChecker())
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -36,7 +37,8 @@ func (s *UserService) UpdateUser(input UpdateUserInput) error {
 	}
 
 	if input.Username != nil {
-		err = user.SetUsername(*input.Username)
+		err = user.SetUsername(*input.Username,
+			s.repo.NewUsernameUniquenessChecker())
 		if err != nil {
 			return err
 		}

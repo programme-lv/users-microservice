@@ -16,14 +16,19 @@ type User struct {
 	bcryptPwd string
 }
 
-func NewUser(uuid uuid.UUID, username, email, password string) (User, error) {
+type UsernameUniquenessChecker interface {
+	DoesUsernameExist(username string) (bool, error)
+}
+
+func NewUser(uuid uuid.UUID, username, email, password string,
+	usernameUniquenessChecker UsernameUniquenessChecker) (User, error) {
 	user := User{
 		id: uuid,
 	}
 
 	var err error
 
-	err = user.SetUsername(username)
+	err = user.SetUsername(username, usernameUniquenessChecker)
 	if err != nil {
 		return User{}, err
 	}
@@ -54,7 +59,8 @@ func (u *User) SetUUID(uuid uuid.UUID) {
 	u.id = uuid
 }
 
-func (u *User) SetUsername(username string) error {
+func (u *User) SetUsername(username string,
+	usernameUniquenessChecker UsernameUniquenessChecker) error {
 	if username == "" {
 		return errors.New("username is required")
 	}
@@ -65,6 +71,15 @@ func (u *User) SetUsername(username string) error {
 
 	if len(username) < 3 {
 		return errors.New("username cannot be shorter than 3 characters")
+	}
+
+	exists, err := usernameUniquenessChecker.DoesUsernameExist(username)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return errors.New("user with such username already exists")
 	}
 
 	u.username = username

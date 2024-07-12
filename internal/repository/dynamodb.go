@@ -158,3 +158,28 @@ func (r *DynamoDBUserRepository) ListUsers() ([]domain.User, error) {
 
 	return users, nil
 }
+
+func (r *DynamoDBUserRepository) NewUsernameUniquenessChecker() domain.UsernameUniquenessChecker {
+	return &dynamoDBUsernameUniquenessChecker{repo: r}
+}
+
+type dynamoDBUsernameUniquenessChecker struct {
+	repo *DynamoDBUserRepository
+}
+
+// DoesUsernameExist implements domain.UsernameUniquenessChecker.
+func (d *dynamoDBUsernameUniquenessChecker) DoesUsernameExist(username string) (bool, error) {
+	// for now just list all users, iterate through
+	users, err := d.repo.ListUsers()
+	if err != nil {
+		return false, err
+	}
+
+	for _, user := range users {
+		if user.GetUsername() == username {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
