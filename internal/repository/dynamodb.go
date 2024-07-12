@@ -18,6 +18,31 @@ type DynamoDBUserRepository struct {
 	tableName string
 }
 
+func (r *DynamoDBUserRepository) NewEmailUniquenessChecker() domain.EmailUniquenessChecker {
+	return &dynamoDBEmailUniquenessChecker{repo: r}
+}
+
+type dynamoDBEmailUniquenessChecker struct {
+	repo *DynamoDBUserRepository
+}
+
+// DoesEmailExist implements domain.EmailUniquenessChecker.
+func (d *dynamoDBEmailUniquenessChecker) DoesEmailExist(email string) (bool, error) {
+	// for now just list all users, iterate through
+	users, err := d.repo.ListUsers()
+	if err != nil {
+		return false, err
+	}
+
+	for _, user := range users {
+		if user.GetEmail() == email {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 func mapDomainUserToDynamoDBUser(user domain.User) map[string]interface{} {
 	return map[string]interface{}{
 		"uuid":       user.GetUUID().String(),

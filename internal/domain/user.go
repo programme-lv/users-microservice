@@ -20,10 +20,24 @@ type UsernameUniquenessChecker interface {
 	DoesUsernameExist(username string) (bool, error)
 }
 
+type EmailUniquenessChecker interface {
+	DoesEmailExist(email string) (bool, error)
+}
+
 func NewUser(uuid uuid.UUID, username, email, password string,
-	usernameUniquenessChecker UsernameUniquenessChecker) (User, error) {
+	usernameUniquenessChecker UsernameUniquenessChecker,
+	emailUniquenessChecker EmailUniquenessChecker) (User, error) {
 	user := User{
 		id: uuid,
+	}
+
+	exists, err := emailUniquenessChecker.DoesEmailExist(email)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return errors.New("user with such email already exists")
 	}
 
 	var err error
@@ -33,7 +47,7 @@ func NewUser(uuid uuid.UUID, username, email, password string,
 		return User{}, err
 	}
 
-	err = user.SetEmail(email)
+	err = user.SetEmail(email, emailUniquenessChecker)
 	if err != nil {
 		return User{}, err
 	}
@@ -86,7 +100,7 @@ func (u *User) SetUsername(username string,
 	return nil
 }
 
-func (u *User) SetEmail(email string) error {
+func (u *User) SetEmail(email string, emailUniquenessChecker EmailUniquenessChecker) error {
 	if email == "" {
 		return errors.New("email is required")
 	}
