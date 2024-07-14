@@ -19,6 +19,8 @@ func (c *Controller) GetUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		respondWithBadRequest(w, "invalid UUID")
 		return
+		Firstname: user.GetFirstname(),
+		Lastname:  user.GetLastname(),
 	}
 
 	user, err := c.UserService.GetUser(id)

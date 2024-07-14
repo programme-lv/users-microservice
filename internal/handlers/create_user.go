@@ -10,6 +10,10 @@ type CreateUserRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Firstname string `json:"firstname,omitempty"`
+	Lastname  string `json:"lastname,omitempty"`
+	Firstname string `json:"firstname,omitempty"`
+	Lastname  string `json:"lastname,omitempty"`
 }
 
 type CreateUserResponse struct {
@@ -24,7 +28,7 @@ func (c *Controller) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := c.UserService.CreateUser(user.Username, user.Email, user.Password)
+	id, err := c.UserService.CreateUser(user.Username, user.Email, user.Password, user.Firstname, user.Lastname)
 	if err != nil {
 		msg := fmt.Errorf("failed to create user: %w", err).Error()
 		respondWithInternalServerError(w, msg)
