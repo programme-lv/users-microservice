@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/programme-lv/users-microservice/internal/handlers"
-	"github.com/programme-lv/users-microservice/internal/middleware"
 	"github.com/programme-lv/users-microservice/internal/repository"
 	"github.com/programme-lv/users-microservice/internal/service"
 
@@ -34,14 +33,20 @@ func main() {
 
 	r.Route("/users", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			r.Use(middleware.JWTAuth)
 			r.Get("/", controller.ListUsers)
 			r.Post("/", controller.CreateUser)
 			r.Get("/{uuid}", controller.GetUser)
 			r.Put("/{uuid}", controller.UpdateUser)
 			r.Delete("/{uuid}", controller.DeleteUser)
 		})
-		r.Post("/login", controller.LoginUser)
+	})
+
+	r.Route("/auth", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			// register is handled by create user
+			// r.Post("/register", controller.RegisterUser)
+			r.Post("/login", controller.LoginUser)
+		})
 	})
 
 	chiLambda := awschi.NewV2(r)
