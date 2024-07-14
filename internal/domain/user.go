@@ -14,8 +14,8 @@ type User struct {
 	username  string
 	email     string
 	bcryptPwd string
-	firstname string
-	lastname  string
+	firstname *string
+	lastname  *string
 }
 
 type UsernameUniquenessChecker interface {
@@ -26,7 +26,7 @@ type EmailUniquenessChecker interface {
 	DoesEmailExist(email string) (bool, error)
 }
 
-func NewUser(uuid uuid.UUID, username, email, password, firstname, lastname string,
+func NewUser(uuid uuid.UUID, username, email, password string, firstname, lastname *string,
 	usernameUniquenessChecker UsernameUniquenessChecker,
 	emailUniquenessChecker EmailUniquenessChecker) (User, error) {
 	user := User{
@@ -50,13 +50,19 @@ func NewUser(uuid uuid.UUID, username, email, password, firstname, lastname stri
 		return User{}, err
 	}
 
-	user.firstname = firstname
-	user.lastname = lastname
+	if firstname != nil {
+		user.firstname = firstname
+	}
+
+	if lastname != nil {
+		user.lastname = lastname
+	}
 
 	return user, nil
 }
 
-func RecoverUser(uuid uuid.UUID, username, email, bcryptPwd, firstname, lastname string) User {
+func RecoverUser(uuid uuid.UUID, username, email, bcryptPwd string,
+	firstname, lastname *string) User {
 	return User{
 		id:        uuid,
 		username:  username,
@@ -155,13 +161,15 @@ func (u *User) GetBcryptPwd() string {
 	return u.bcryptPwd
 }
 
-func (u *User) GetFirstname() string {
+func (u *User) GetFirstname() *string {
 	return u.firstname
 }
 
-func (u *User) GetLastname() string {
+func (u *User) GetLastname() *string {
 	return u.lastname
 }
+
+func validEmail(email string) bool {
 	_, err := mail.ParseAddress(email)
 	return err == nil
 }

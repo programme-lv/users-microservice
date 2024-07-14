@@ -5,13 +5,17 @@ import (
 )
 
 type ListUsersResponse struct {
-	Users []UserResponse `json:"users"`
+	Users     []UserResponse `json:"users"`
+	Firstname string         `json:"firstname,omitempty"`
+	Lastname  string         `json:"lastname,omitempty"`
 }
 
 type UserResponse struct {
-	UUID     string `json:"uuid"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	UUID      string  `json:"uuid"`
+	Username  string  `json:"username"`
+	Email     string  `json:"email"`
+	Firstname *string `json:"firstname,omitempty"`
+	Lastname  *string `json:"lastname,omitempty"`
 }
 
 func (c *Controller) ListUsers(w http.ResponseWriter, r *http.Request) {
@@ -24,9 +28,11 @@ func (c *Controller) ListUsers(w http.ResponseWriter, r *http.Request) {
 	users := []UserResponse{}
 	for _, u := range user {
 		users = append(users, UserResponse{
-			UUID:     u.GetUUID().String(),
-			Username: u.GetUsername(),
-			Email:    u.GetEmail(),
+			UUID:      u.GetUUID().String(),
+			Username:  u.GetUsername(),
+			Email:     u.GetEmail(),
+			Firstname: u.GetFirstname(),
+			Lastname:  u.GetLastname(),
 		})
 	}
 

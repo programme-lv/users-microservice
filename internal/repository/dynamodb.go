@@ -49,6 +49,8 @@ func mapDomainUserToDynamoDBUser(user domain.User) map[string]interface{} {
 		"username":   user.GetUsername(),
 		"email":      user.GetEmail(),
 		"bcrypt_pwd": user.GetBcryptPwd(),
+		"firstname":  user.GetFirstname(),
+		"lastname":   user.GetLastname(),
 	}
 }
 
@@ -57,6 +59,8 @@ func mapDynamoDBUserToDomainUser(dict map[string]interface{}) (domain.User, erro
 	_, usernameFound := dict["username"]
 	_, emailFound := dict["email"]
 	_, bcryptPwdFound := dict["bcrypt_pwd"]
+	_, firstnameFound := dict["firstname"]
+	_, lastnameFound := dict["lastname"]
 
 	if !uuidFound || !usernameFound || !emailFound || !bcryptPwdFound {
 		return domain.User{}, errors.New("missing fields")
@@ -82,7 +86,25 @@ func mapDynamoDBUserToDomainUser(dict map[string]interface{}) (domain.User, erro
 		return domain.User{}, errors.New("invalid bcrypt password")
 	}
 
-	return domain.RecoverUser(uuid, username, email, bcryptPwd), nil
+	var firstname *string = nil
+	if firstnameFound {
+		firstnameStr, ok := dict["firstname"].(string)
+		if !ok {
+			return domain.User{}, errors.New("invalid firstname")
+		}
+		firstname = &firstnameStr
+	}
+
+	var lastname *string = nil
+	if lastnameFound {
+		lastnameStr, ok := dict["lastname"].(string)
+		if !ok {
+			return domain.User{}, errors.New("invalid lastname")
+		}
+		lastname = &lastnameStr
+	}
+
+	return domain.RecoverUser(uuid, username, email, bcryptPwd, firstname, lastname), nil
 }
 
 // NewDynamoDBUserRepository creates a new DynamoDBUserRepository with a DynamoDB client
@@ -97,7 +119,7 @@ func NewDynamoDBUserRepository(tableName string) (*DynamoDBUserRepository, error
 
 func (r *DynamoDBUserRepository) GetUserByUsername(username string) (domain.User, error) {
 	input := &dynamodb.ScanInput{
-		TableName: aws.String(r.tableName),
+		TableName:        aws.String(r.tableName),
 		FilterExpression: aws.String("username = :username"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":username": &types.AttributeValueMemberS{Value: username},

@@ -7,10 +7,12 @@ import (
 	"github.com/programme-lv/users-microservice/internal/domain"
 )
 
-func (s *UserService) CreateUser(username, email, password string) (uuid.UUID, error) {
+func (s *UserService) CreateUser(username, email, password string,
+	firstname, lastname *string) (uuid.UUID, error) {
 	slog.Info("Creating user", "username", username, "email", email)
 
 	user, err := domain.NewUser(uuid.New(), username, email, password,
+		firstname, lastname,
 		s.repo.NewUsernameUniquenessChecker(),
 		s.repo.NewEmailUniquenessChecker())
 	if err != nil {
@@ -26,12 +28,15 @@ func (s *UserService) CreateUser(username, email, password string) (uuid.UUID, e
 }
 
 type UpdateUserInput struct {
-	UUID     uuid.UUID
-	Username *string
-	Email    *string
+	UUID      uuid.UUID
+	Username  *string
+	Email     *string
+	Firstname *string
+	Lastname  *string
 }
 
 func (s *UserService) UpdateUser(input UpdateUserInput) error {
+	// TODO: add authorization check
 	user, err := s.repo.GetUser(input.UUID)
 	if err != nil {
 		return err
@@ -56,5 +61,6 @@ func (s *UserService) UpdateUser(input UpdateUserInput) error {
 }
 
 func (s *UserService) DeleteUser(uuid uuid.UUID) error {
+	// TODO: add authorization check
 	return s.repo.DeleteUser(uuid)
 }

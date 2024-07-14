@@ -8,9 +8,11 @@ import (
 )
 
 type GetUserResponse struct {
-	UUID     string `json:"uuid"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	UUID      string `json:"uuid"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Firstname string `json:"firstname,omitempty"`
+	Lastname  string `json:"lastname,omitempty"`
 }
 
 func (c *Controller) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -19,8 +21,6 @@ func (c *Controller) GetUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		respondWithBadRequest(w, "invalid UUID")
 		return
-		Firstname: user.GetFirstname(),
-		Lastname:  user.GetLastname(),
 	}
 
 	user, err := c.UserService.GetUser(id)
