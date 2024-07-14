@@ -1,13 +1,15 @@
 @host=0f6de9e9w5.execute-api.eu-central-1.amazonaws.com
-@uuid=869f72ed-af64-4b80-96b5-6f2af043af40
+@uuid=1f5b8a10-67c2-4374-a378-0bc2a07bc682
 ### Create User
 POST https://{{host}}/users/
 Content-Type: application/json
 
 {
-  "username": "Eliaa",
-  "email": "johndoea@example.com",
-  "password": "password123"
+  "username": "Eliaa3",
+  "email": "johndoe3@example.com",
+  "password": "password123",
+  "firstname": "John",
+  "lastname": "Doe"
 }
 
 ### Get User

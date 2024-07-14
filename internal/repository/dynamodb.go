@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"reflect"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -41,6 +42,22 @@ func (d *dynamoDBEmailUniquenessChecker) DoesEmailExist(email string) (bool, err
 	}
 
 	return false, nil
+}
+
+func IsNilish(val any) bool {
+	if val == nil {
+		return true
+	}
+
+	v := reflect.ValueOf(val)
+	k := v.Kind()
+	switch k {
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Pointer,
+		reflect.UnsafePointer, reflect.Interface, reflect.Slice:
+		return v.IsNil()
+	}
+
+	return false
 }
 
 func mapDomainUserToDynamoDBUser(user domain.User) map[string]interface{} {
@@ -87,7 +104,7 @@ func mapDynamoDBUserToDomainUser(dict map[string]interface{}) (domain.User, erro
 	}
 
 	var firstname *string = nil
-	if firstnameFound {
+	if firstnameFound && !IsNilish(dict["firstname"]) {
 		firstnameStr, ok := dict["firstname"].(string)
 		if !ok {
 			return domain.User{}, errors.New("invalid firstname")
@@ -96,7 +113,7 @@ func mapDynamoDBUserToDomainUser(dict map[string]interface{}) (domain.User, erro
 	}
 
 	var lastname *string = nil
-	if lastnameFound {
+	if lastnameFound && !IsNilish(dict["lastname"]) {
 		lastnameStr, ok := dict["lastname"].(string)
 		if !ok {
 			return domain.User{}, errors.New("invalid lastname")
