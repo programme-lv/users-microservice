@@ -6,6 +6,7 @@ SCRIPT_DIR=$(dirname $0)
 
 pushd "$SCRIPT_DIR"/..
 
+sam build
 sam package
 
 popd
