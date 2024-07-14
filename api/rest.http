@@ -27,3 +27,12 @@ DELETE http://localhost:3000/users/{uuid}
 
 ### List Users
 GET https://{{host}}/users/
+
+### Login
+POST https://{{host}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "Eliaa",
+  "password": "password123"
+}
