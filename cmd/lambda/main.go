@@ -63,6 +63,7 @@ func main() {
 			// register is handled by create user
 			// r.Post("/register", controller.RegisterUser)
 			r.Post("/login", controller.LoginUser)
+			r.Post("/register", controller.Register)
 		})
 	})
 

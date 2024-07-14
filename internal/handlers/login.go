@@ -30,7 +30,9 @@ func (c *Controller) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := auth.GenerateJWT(user.GetUsername())
+	token, err := auth.GenerateJWT(user.GetUsername(),
+		user.GetEmail(), user.GetUUID().String(),
+		user.GetFirstname(), user.GetLastname())
 	if err != nil {
 		respondWithInternalServerError(w, "failed to generate token")
 		return
