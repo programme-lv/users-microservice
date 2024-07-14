@@ -95,6 +95,33 @@ func NewDynamoDBUserRepository(tableName string) (*DynamoDBUserRepository, error
 	return &DynamoDBUserRepository{db: db, tableName: tableName}, nil
 }
 
+func (r *DynamoDBUserRepository) GetUserByUsername(username string) (domain.User, error) {
+	input := &dynamodb.ScanInput{
+		TableName: aws.String(r.tableName),
+		FilterExpression: aws.String("username = :username"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":username": &types.AttributeValueMemberS{Value: username},
+		},
+	}
+
+	result, err := r.db.Scan(context.TODO(), input)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	if len(result.Items) == 0 {
+		return domain.User{}, errors.New("user not found")
+	}
+
+	dict := map[string]interface{}{}
+	err = attributevalue.UnmarshalMap(result.Items[0], &dict)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	return mapDynamoDBUserToDomainUser(dict)
+}
+
 func (r *DynamoDBUserRepository) GetUser(id uuid.UUID) (domain.User, error) {
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String(r.tableName),
