@@ -28,8 +28,7 @@ func main() {
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			// register is handled by create user
-			// r.Post("/register", controller.RegisterUser)
+			r.Post("/register", controller.CreateUser)
 			r.Post("/login", controller.LoginUser)
 		})
 	})
