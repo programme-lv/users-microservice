@@ -61,7 +61,7 @@ func NewUser(uuid uuid.UUID, username, email, password string, firstname, lastna
 	return user, nil
 }
 
-func RecoverUser(uuid uuid.UUID, username, email, bcryptPwd string,
+func ConstructUser(uuid uuid.UUID, username, email, bcryptPwd string,
 	firstname, lastname *string) User {
 	return User{
 		id:        uuid,

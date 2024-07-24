@@ -120,7 +120,7 @@ func mapDynamoDBUserToDomainUser(dict map[string]interface{}) (domain.User, erro
 		lastname = &lastnameStr
 	}
 
-	return domain.RecoverUser(uuid, username, email, bcryptPwd, firstname, lastname), nil
+	return domain.ConstructUser(uuid, username, email, bcryptPwd, firstname, lastname), nil
 }
 
 // NewDynamoDBUserRepository creates a new DynamoDBUserRepository with a DynamoDB client
