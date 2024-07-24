@@ -5,9 +5,7 @@ import (
 )
 
 type ListUsersResponse struct {
-	Users     []UserResponse `json:"users"`
-	Firstname string         `json:"firstname,omitempty"`
-	Lastname  string         `json:"lastname,omitempty"`
+	Users []UserResponse `json:"users"`
 }
 
 type UserResponse struct {
