@@ -33,7 +33,6 @@ func (c *Controller) RegisterRoutes(r chi.Router) {
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			r.Get("/", c.AuthState)
 			r.Post("/login", c.LoginUser)
 			r.Post("/register", c.Register)
 		})
