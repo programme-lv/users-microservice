@@ -16,8 +16,13 @@ import (
 )
 
 func main() {
+	jwtKey := os.Getenv("JWT_KEY")
+	if jwtKey == "" {
+		panic("JWT_KEY environment variable is not set")
+	}
+
 	userService := service.NewUserService(getDynamoDbRepo())
-	controller := handlers.NewController(userService)
+	controller := handlers.NewController(userService, []byte(jwtKey))
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)

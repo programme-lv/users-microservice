@@ -11,8 +11,11 @@ type Controller struct {
 	jwtKey  []byte
 }
 
-func NewController(userService *service.UserService) *Controller {
-	return &Controller{userSrv: userService}
+func NewController(userService *service.UserService, jwtKey []byte) *Controller {
+	return &Controller{
+		userSrv: userService,
+		jwtKey:  jwtKey,
+	}
 }
 
 func (c *Controller) RegisterRoutes(r chi.Router) {
