@@ -1,0 +1,38 @@
+package handlers
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/programme-lv/users-microservice/internal/auth"
+)
+
+type AuthStateResponse struct {
+}
+
+func (c *Controller) AuthState(w http.ResponseWriter, r *http.Request) {
+	var req LoginRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		respondWithBadRequest(w, "invalid request payload")
+		return
+	}
+
+	user, err := c.userSrv.AuthenticateUser(req.Username, req.Password)
+	if err != nil {
+		respondWithBadRequest(w, "invalid username or password")
+		return
+	}
+
+	token, err := auth.GenerateJWT(user.GetUsername(),
+		user.GetEmail(), user.GetUUID().String(),
+		user.GetFirstname(), user.GetLastname(),
+		c.jwtKey)
+	if err != nil {
+		respondWithInternalServerError(w, "failed to generate token")
+		return
+	}
+
+	response := LoginResponse{Token: token}
+	respondWithJSON(w, response, http.StatusOK)
+}

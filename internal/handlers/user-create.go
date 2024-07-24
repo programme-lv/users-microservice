@@ -26,7 +26,7 @@ func (c *Controller) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := c.UserService.CreateUser(user.Username,
+	id, err := c.userSrv.CreateUser(user.Username,
 		user.Email, user.Password,
 		user.Firstname, user.Lastname)
 	if err != nil {

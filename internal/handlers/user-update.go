@@ -21,7 +21,7 @@ func (c *Controller) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = c.UserService.UpdateUser(service.UpdateUserInput{
+	err = c.userSrv.UpdateUser(service.UpdateUserInput{
 		UUID: [16]byte{},
 	})
 	if err != nil {

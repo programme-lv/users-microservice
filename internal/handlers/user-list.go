@@ -17,7 +17,7 @@ type UserResponse struct {
 }
 
 func (c *Controller) ListUsers(w http.ResponseWriter, r *http.Request) {
-	user, err := c.UserService.ListUsers()
+	user, err := c.userSrv.ListUsers()
 	if err != nil {
 		respondWithBadRequest(w, "user not found")
 		return

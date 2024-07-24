@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/go-chi/chi/v5"
@@ -15,8 +13,6 @@ import (
 	"github.com/programme-lv/users-microservice/internal/handlers"
 	"github.com/programme-lv/users-microservice/internal/repository"
 	"github.com/programme-lv/users-microservice/internal/service"
-
-	awschi "github.com/awslabs/aws-lambda-go-api-proxy/chi"
 )
 
 func main() {
@@ -25,35 +21,11 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Use(corsMiddleware)
 
 	controller.RegisterRoutes(r)
 
-	chiLambda := awschi.NewV2(r)
-
-	handler := func(ctx context.Context, req events.APIGatewayV2HTTPRequest) (
-		events.APIGatewayV2HTTPResponse, error) {
-		return chiLambda.ProxyWithContextV2(ctx, req)
-	}
-
-	lambda.Start(handler)
-}
-
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods",
-			"GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-
-		// Handle preflight request
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
+	fmt.Println("Server started at port 8080")
+	http.ListenAndServe(":8080", r)
 }
 
 func getDynamoDbRepo() *repository.DynamoDBUserRepository {

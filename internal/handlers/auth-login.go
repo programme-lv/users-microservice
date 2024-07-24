@@ -24,7 +24,7 @@ func (c *Controller) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := c.UserService.AuthenticateUser(req.Username, req.Password)
+	user, err := c.userSrv.AuthenticateUser(req.Username, req.Password)
 	if err != nil {
 		respondWithBadRequest(w, "invalid username or password")
 		return
@@ -32,7 +32,8 @@ func (c *Controller) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	token, err := auth.GenerateJWT(user.GetUsername(),
 		user.GetEmail(), user.GetUUID().String(),
-		user.GetFirstname(), user.GetLastname())
+		user.GetFirstname(), user.GetLastname(),
+		c.jwtKey)
 	if err != nil {
 		respondWithInternalServerError(w, "failed to generate token")
 		return

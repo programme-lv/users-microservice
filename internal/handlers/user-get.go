@@ -23,7 +23,7 @@ func (c *Controller) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := c.UserService.GetUser(id)
+	user, err := c.userSrv.GetUser(id)
 	if err != nil {
 		respondWithBadRequest(w, "user not found")
 		return

@@ -29,7 +29,7 @@ func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := c.UserService.CreateUser(request.Username,
+	id, err := c.userSrv.CreateUser(request.Username,
 		request.Email, request.Password,
 		request.Firstname, request.Lastname)
 	if err != nil {
@@ -38,7 +38,7 @@ func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := c.UserService.GetUser(id)
+	user, err := c.userSrv.GetUser(id)
 	if err != nil {
 		msg := fmt.Errorf("failed to get user: %w", err).Error()
 		respondWithInternalServerError(w, msg)
@@ -47,7 +47,8 @@ func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
 
 	token, err := auth.GenerateJWT(user.GetUsername(),
 		user.GetEmail(), user.GetUUID().String(),
-		user.GetFirstname(), user.GetLastname())
+		user.GetFirstname(), user.GetLastname(),
+		c.jwtKey)
 	if err != nil {
 		respondWithInternalServerError(w, "failed to generate token")
 		return

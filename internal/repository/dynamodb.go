@@ -6,7 +6,6 @@ import (
 	"reflect"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -125,12 +124,7 @@ func mapDynamoDBUserToDomainUser(dict map[string]interface{}) (domain.User, erro
 }
 
 // NewDynamoDBUserRepository creates a new DynamoDBUserRepository with a DynamoDB client
-func NewDynamoDBUserRepository(tableName string) (*DynamoDBUserRepository, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
-	if err != nil {
-		return nil, errors.New("unable to load SDK config, " + err.Error())
-	}
-	db := dynamodb.NewFromConfig(cfg)
+func NewDynamoDBUserRepository(db *dynamodb.Client, tableName string) (*DynamoDBUserRepository, error) {
 	return &DynamoDBUserRepository{db: db, tableName: tableName}, nil
 }
 

@@ -16,7 +16,7 @@ func (c *Controller) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = c.UserService.DeleteUser(id)
+	err = c.userSrv.DeleteUser(id)
 	if err != nil {
 		respondWithInternalServerError(w, "failed to delete user")
 		return
